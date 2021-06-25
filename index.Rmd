@@ -20,7 +20,7 @@ library(plotly)
 library(leaflet)
 ```
 ```{r caraga-datos}
-# Carga de datos
+# Registro de presencia de Junco Vulcanic
 junco_vulcanic <-
   st_read(
     "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/gbif/junco_vulcani-cr-registros.csv",
@@ -33,8 +33,21 @@ junco_vulcanic <-
 
 # Asignación de CRS
 st_crs(junco_vulcanic) = 4326
+
+# Capa geospacial de cantones 
+cantones <-
+  st_read(
+    "https://raw.githubusercontent.com/gf0604-procesamientodatosgeograficos/2021i-datos/main/ign/delimitacion-territorial-administrativa/cr_cantones_simp_wgs84.geojson",
+    quiet = TRUE
+  )
 ```
 
+```{r}
+# Cruce espacial con la tabla de cantones, para obtener el nombre del cantón
+junco_vulcanic <- 
+  junco_vulcanic %>%
+  st_join(cantones["canton"])
+```
 
 
 
@@ -42,7 +55,20 @@ st_crs(junco_vulcanic) = 4326
 El junco de los páramos (Junco vulcani) habita en zonas abiertas en elevaciones altas, usualmente por encima de los 3000 m. Suele posarse sobre el suelo en pequeños arbustos, generalmente en parejas o en grupos pequeños. Su rango es muy limitado: solo en Costa Rica o en el oeste de Panamá (eBird,[Juncovulcani](https://ebird.org/species/voljun1)).
 
 
+
+
 # Tabla de registro de presencia
+```{r}
+# Tabla de registros de presencia
+junco_vulcanic %>%
+  st_drop_geometry() %>%
+  select(stateProvince, canton, locality, eventDate) %>%
+  datatable(
+    colnames = c("Provincia", "Cantón", "Localidad", "Fecha"),
+    options = list(searchHighlight = TRUE)
+  )
+```
+
 
 # Graficos de estacionalidad
 
